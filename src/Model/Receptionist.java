@@ -20,6 +20,12 @@ public class Receptionist {
     private ArrayList<Customer> CustomerDetails;
 
     public Receptionist() {
+        TransectionDetails=new ArrayList<>();
+        Availablestock=new ArrayList<>();
+        SalesDetails=new ArrayList<>();
+        ProductionDetails=new ArrayList<>();
+        CustomerDetails=new ArrayList<>();
+        
     }
 
     public ArrayList<Transection> getTransectionDetails() {
