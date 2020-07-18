@@ -5,7 +5,11 @@
  */
 package GUI;
 
+import Database.*;
 import Model.Transection;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
@@ -18,10 +22,11 @@ public class Addtransaction extends javax.swing.JFrame {
     /**
      * Creates new form addtrans
      */
-    ArrayList<Transection> transectiondetails;
-    public Addtransaction(ArrayList<Transection> transectiondetails) {
+    Shimano_GUI maingui;
+    
+    public Addtransaction(Shimano_GUI sh) {
         initComponents();
-        this.transectiondetails=transectiondetails;
+        this.maingui=sh;
     }
     public Addtransaction() {
         initComponents();
@@ -171,7 +176,7 @@ public class Addtransaction extends javax.swing.JFrame {
         //declaretion
         String description="";
         Double amount=0.0;
-        boolean type;
+        String type="";
         
         //assigning with validation
         description=txtTransactionPayee.getText().toString();
@@ -187,36 +192,19 @@ public class Addtransaction extends javax.swing.JFrame {
             return;
         }
         
-        type = jComboBoxType.getSelectedItem().toString().equals("INCOME");
+        type = jComboBoxType.getSelectedItem().toString();
         
-        //create transection object
-        Transection tr=new Transection(description, type, amount);
-        transectiondetails.add(tr);
+        //transfer to database
+        Timestamp timestamp=new java.sql.Timestamp(System.currentTimeMillis());
+        String sql="INSERT INTO `Transection`(`date`, `description`, `type`, `amount`) VALUES ('"+timestamp+"','"+description+"','"+type+"','"+amount+"')";
+        Database db=new Database();
+        db.insert(sql);
+        
+        //update table
+       maingui.updatetable(evt);
+        
         JOptionPane.showMessageDialog(jPanel1,"Transection have been added Sucessfully","Transection added",JOptionPane.INFORMATION_MESSAGE);
         this.setVisible(false);
-        
-        
-        /*String str="";
-        String payee="",type="";
-        int amount=0;
-        try{
-        long millis=System.currentTimeMillis();  
-        java.sql.Date date=new java.sql.Date(millis);  
-         
-        payee=txtTransactionPayee.getText().toString();
-        amount=Integer.parseInt(txtTransactionAmount.getText().toString());
-        type=jComboBoxType.getSelectedItem().toString();
-        
-        //str="INSERT INTO `transaction`(`date`, `payee`, `type`, `amount`) VALUES ('"+date+"','"+payee+"','"+type+"','"+amount+"')";
-        //database.instance.insert(str);
-        JOptionPane.showMessageDialog(this, "Transaction details added");
-        
-        }catch(Exception ex)
-        {
-            JOptionPane.showMessageDialog(this, "Invalid datas");
-        }*/
-        
-        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

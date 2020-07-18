@@ -67,6 +67,22 @@ public class Receptionist {
     public void setCustomerDetails(ArrayList<Customer> CustomerDetails) {
         this.CustomerDetails = CustomerDetails;
     }
+    
+    public void cleartransection(){
+        TransectionDetails=new ArrayList<>();
+    }
+    
+    public double calculatebalance(){
+        double balance=0;
+        for(int i=0;i<TransectionDetails.size();i++){
+           if(TransectionDetails.get(i).getType().equalsIgnoreCase("INCOME")){
+               balance=balance+TransectionDetails.get(i).getAmount();
+           }else{
+               balance=balance-TransectionDetails.get(i).getAmount();
+           }
+        }
+        return balance;
+    }
 
     /*
     * codes for othe receptionist class methods in class diagram

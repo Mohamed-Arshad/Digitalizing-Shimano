@@ -5,9 +5,18 @@
  */
 package GUI;
 
+import Database.Database;
 import Model.*;
+import java.awt.event.ActionEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JTable;
 
@@ -21,29 +30,34 @@ public class Shimano_GUI extends javax.swing.JFrame {
      * Creates new form Shimano_GUI
      */
     private Receptionist receptionist;
+
     public Shimano_GUI() {
         initComponents();
-        receptionist=new Receptionist();
+        receptionist = new Receptionist();
+        jButton1ActionPerformed(new ActionEvent(this,0,null));
     }
-    public void RefreshTransectionTable(){
-        ArrayList<Transection> transection= receptionist.getTransectionDetails();
-        int i=transection.size()-1;
+
+    public void RefreshTransectionTable() {
+        ArrayList<Transection> transection = receptionist.getTransectionDetails();
+        int i = transection.size() - 1;
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh.mm aa");
-        String[][] transectiondata=new String[transection.size()][5];
-		for(Transection tr : transection){
-                    transectiondata[i][0]=formatter.format(tr.getDate());
-                    transectiondata[i][1]=tr.getDescription();
-                    if(tr.getType()){
-                    transectiondata[i][2]="INCOME";
-                    }else{
-                    transectiondata[i][2]="EXPENDITURE";
-                    }
-                    transectiondata[i][3]=Double.toString(tr.getAmount());
-                    i--;
-		}
-                String[] header= new String [] {"Date & Time", "Discription", "Type", "Amount"};
-                jTable1 = new JTable(transectiondata,header);
-		jScrollPane1.setViewportView(jTable1);      
+        String[][] transectiondata = new String[transection.size()][5];
+        for (Transection tr : transection) {
+            transectiondata[i][0] = formatter.format(tr.getDate());
+            transectiondata[i][1] = tr.getDescription();
+            transectiondata[i][2] = tr.getType();
+            transectiondata[i][3] = Double.toString(tr.getAmount());
+            i--;
+        }
+        String[] header = new String[]{"Date & Time", "Discription", "Type", "Amount"};
+        jTable1 = new JTable(transectiondata, header);
+        jScrollPane1.setViewportView(jTable1);
+
+        jLabel5.setText(Double.toString(receptionist.calculatebalance()));
+    }
+
+    public void updatetable(java.awt.event.ActionEvent evt) {
+        jButton1ActionPerformed(evt);
     }
 
     /**
@@ -340,15 +354,56 @@ public class Shimano_GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        int year=jYearChooser1.getYear();
-        int month=jMonthChooser1.getMonth();
-        RefreshTransectionTable();
+
+        try {
+            // TODO add your handling code here:
+            receptionist.cleartransection();
+            ArrayList<Transection> transection = receptionist.getTransectionDetails();
+            int year = jYearChooser1.getYear();
+            int month = jMonthChooser1.getMonth() + 1;//date picker +1 (in date picker jan == 0, feb ==1,...dec==11)
+            Timestamp viewfloor = null;
+            Timestamp viewroof = null;
+
+            try {
+                Date date = new SimpleDateFormat("yyyyMM").parse(Integer.toString(year) + month);
+                viewfloor = new java.sql.Timestamp(date.getTime());
+
+                if ((month + 1) < 13) {
+                    month++;
+                } else {
+                    month = 1;
+                    year++;
+                }
+                date = new SimpleDateFormat("yyyyMM").parse(Integer.toString(year) + month);
+                viewroof = new java.sql.Timestamp(date.getTime());
+            } catch (ParseException ex) {
+                Logger.getLogger(Shimano_GUI.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("invalid date");
+            }
+
+            String sql = "select * from transection where date between '" + viewfloor + "' and '" + viewroof + "'";
+            Database db = new Database();
+            ResultSet result = db.select(sql);
+            while (result.next()) {
+                Date date = new Date(result.getTimestamp("date").getTime());
+                String description = result.getString("description");
+                String type = result.getString("type");
+                double amount = result.getDouble("amount");
+                Transection tr = new Transection(description, type, amount, date);
+                transection.add(tr);
+            }
+            RefreshTransectionTable();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Shimano_GUI.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("something wrong in view");
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        Addtransaction adtrans=new Addtransaction(receptionist.getTransectionDetails());
+        Addtransaction adtrans = new Addtransaction(this);
         adtrans.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         adtrans.setVisible(true);
     }//GEN-LAST:event_jButton2ActionPerformed

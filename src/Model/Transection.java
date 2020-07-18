@@ -14,12 +14,12 @@ import java.util.Date;
 public class Transection {
 
     private String Description;
-    private boolean type;
+    private String type;
     private double Amount;
     private Date Date;
 
     //constructor for create new transection
-    public Transection(String Description, boolean type, double Amount) {
+    public Transection(String Description, String type, double Amount) {
         this.Description = Description;
         this.type = type;
         this.Amount = Amount;
@@ -27,7 +27,7 @@ public class Transection {
     }
 
     //constructor for load transection from database
-    public Transection(String Description, boolean type, double Amount, Date Date) {
+    public Transection(String Description, String type, double Amount, Date Date) {
         this.Description = Description;
         this.type = type;
         this.Amount = Amount;
@@ -42,11 +42,11 @@ public class Transection {
         this.Description = Description;
     }
 
-    public boolean getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(boolean type) {
+    public void setType(String type) {
         this.type = type;
     }
 
