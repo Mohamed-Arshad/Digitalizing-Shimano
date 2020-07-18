@@ -201,7 +201,7 @@ public class Addtransaction extends javax.swing.JFrame {
         db.insert(sql);
         
         //update table
-       maingui.updatetable(evt);
+       maingui.updatetransectiontable(evt);
         
         JOptionPane.showMessageDialog(jPanel1,"Transection have been added Sucessfully","Transection added",JOptionPane.INFORMATION_MESSAGE);
         this.setVisible(false);

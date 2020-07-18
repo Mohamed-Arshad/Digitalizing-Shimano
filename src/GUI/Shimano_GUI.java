@@ -35,13 +35,14 @@ public class Shimano_GUI extends javax.swing.JFrame {
         initComponents();
         receptionist = new Receptionist();
         jButton1ActionPerformed(new ActionEvent(this,0,null));
+        loaditemtable();
     }
 
     public void RefreshTransectionTable() {
         ArrayList<Transection> transection = receptionist.getTransectionDetails();
         int i = transection.size() - 1;
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh.mm aa");
-        String[][] transectiondata = new String[transection.size()][5];
+        String[][] transectiondata = new String[transection.size()][4];
         for (Transection tr : transection) {
             transectiondata[i][0] = formatter.format(tr.getDate());
             transectiondata[i][1] = tr.getDescription();
@@ -56,8 +57,43 @@ public class Shimano_GUI extends javax.swing.JFrame {
         jLabel5.setText(Double.toString(receptionist.calculatebalance()));
     }
 
-    public void updatetable(java.awt.event.ActionEvent evt) {
+    public void updatetransectiontable(java.awt.event.ActionEvent evt) {
         jButton1ActionPerformed(evt);
+    }
+    public void refreshitemtable(ArrayList<Product> item) {
+        int i = item.size() - 1;
+        String[][] itemdata = new String[item.size()][5];
+        for (Product pr : item) {
+            itemdata[i][0] = pr.getName();
+            itemdata[i][1] = pr.getModel();
+            itemdata[i][2] = pr.getDescription();
+            itemdata[i][3] = Integer.toString(pr.getQuantity());
+            itemdata[i][4] = Double.toString(pr.getUnitPrice());
+            i--;
+        }
+        String[] header = new String[]{"Name", "Model", "Description", "Quantity","Unit Price"};
+        jTable2 = new JTable(itemdata, header);
+        jScrollPane10.setViewportView(jTable2);
+    }
+    public void loaditemtable(){
+        try {
+            String sql = "select * from availableproduct";
+            Database db = new Database();
+            ResultSet result = db.select(sql);
+            while (result.next()) {
+                String name = result.getString("name");
+                String model = result.getString("model");
+                String description = result.getString("description");
+                int quantity=result.getInt("quantity");
+                double unitprice = result.getDouble("unitprice");
+                Product pr = new Product(name, model, description, unitprice, quantity);
+                receptionist.getAvailablestock().add(pr);
+            }
+            refreshitemtable(receptionist.getAvailablestock());
+        } catch (SQLException ex) {
+            Logger.getLogger(Shimano_GUI.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("something wrong withload table");
+        }
     }
 
     /**
@@ -88,6 +124,13 @@ public class Shimano_GUI extends javax.swing.JFrame {
         jPanel9 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jPanel8 = new javax.swing.JPanel();
+        jScrollPane10 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        jLabel6 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -220,7 +263,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
                     .addComponent(jMonthChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
@@ -242,27 +285,99 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane3.setViewportView(jPanel9);
 
         jTabbedPane1.addTab("tab2", jScrollPane3);
 
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Name", "Model", "Description", "Quantity", "Unit price"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane10.setViewportView(jTable2);
+
+        jLabel6.setFont(new java.awt.Font("Tempus Sans ITC", 1, 36)); // NOI18N
+        jLabel6.setText("Available Stock");
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel7.setText("Search By Name : ");
+
+        jButton4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton4.setText("Search");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jButton5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton5.setText("Add Item");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addGap(35, 35, 35)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton5)
+                    .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel8Layout.createSequentialGroup()
+                            .addComponent(jLabel7)
+                            .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel8Layout.createSequentialGroup()
+                                    .addGap(235, 235, 235)
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jTextField1)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 890, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(75, 75, 75))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGroup(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane10, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(35, 35, 35)
+                .addComponent(jButton5)
+                .addGap(102, 102, 102))
         );
 
         jScrollPane4.setViewportView(jPanel8);
 
-        jTabbedPane1.addTab("tab3", jScrollPane4);
+        jTabbedPane1.addTab("Available Stock", jScrollPane4);
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -272,7 +387,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane5.setViewportView(jPanel7);
@@ -287,7 +402,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane6.setViewportView(jPanel6);
@@ -302,7 +417,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane7.setViewportView(jPanel5);
@@ -317,7 +432,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane8.setViewportView(jPanel4);
@@ -332,7 +447,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 510, Short.MAX_VALUE)
+            .addGap(0, 604, Short.MAX_VALUE)
         );
 
         jScrollPane9.setViewportView(jPanel3);
@@ -347,7 +462,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 608, Short.MAX_VALUE)
         );
 
         pack();
@@ -412,6 +527,29 @@ public class Shimano_GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        additem additem=new additem(this,receptionist.getAvailablestock());
+        additem.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        additem.setVisible(true);
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        String name=jTextField1.getText();
+        ArrayList<Product> temp=new ArrayList<Product>();
+        if(name==""){
+            temp=receptionist.getAvailablestock();
+        }else{
+        for(int i=0;i<receptionist.getAvailablestock().size();i++){
+            if(receptionist.getAvailablestock().get(i).getName().contains(name)){
+                temp.add(receptionist.getAvailablestock().get(i));
+            }
+        }
+       }
+        refreshitemtable(temp);
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -451,11 +589,15 @@ public class Shimano_GUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private com.toedter.calendar.JMonthChooser jMonthChooser1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel3;
@@ -466,6 +608,7 @@ public class Shimano_GUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane10;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -476,6 +619,8 @@ public class Shimano_GUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
+    private javax.swing.JTextField jTextField1;
     private com.toedter.calendar.JYearChooser jYearChooser1;
     // End of variables declaration//GEN-END:variables
 }
